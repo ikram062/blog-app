@@ -2,14 +2,14 @@
 const express = require('express');
 const morgan = require('morgan');//middleware
 const mongoose = require('mongoose');
-const Blog = require('./models/blog');
+const blogRoutes = require('./routes/blogRoutes')
 
-const app = express();//express app
+const app = express();//creates an express app
 
 //connect to mongodb
 const dbURI = 'mongodb+srv://ikramghala:ikram2006@blogapp.3quwx.mongodb.net/blogapp?retryWrites=true&w=majority&appName=blogapp';
 mongoose.connect(dbURI)
-  .then((result) => app.listen(3000))
+  .then((result) => app.listen(3000))//starts server on port 3000
   .catch((err) => console.log(err));
 
 //register view engine
@@ -23,7 +23,7 @@ app.use(morgan('dev'));
 
 
 
-app.get('/', (req, res) => {
+app.get('/', (req, res) => {//(path, callback)
   res.redirect('/blogs');//index view (index.ejs)
 });
 
@@ -32,49 +32,7 @@ app.get('/about', (req, res) => {
   res.render('about', {title: 'About'});
 });
 
-app.get('/blogs', (req, res) => {
-  Blog.find().sort({createdAt: -1})
-  .then((result) => {
-    res.render('index', {title: 'All Blogs', blogs: result});
-  })
-  .catch((err) => {
-    console.log(err);
-  })
-});
-
-app.post('/blogs', (req, res) => {
-  const blog = new Blog(req.body);
-
-  blog.save()
-  .then((result) => {
-    res.redirect('/blogs');
-  })
-  .catch((err) => {
-    console.log(err);
-  })
-});
-
-app.get('/blogs/:id', (req, res) => {
-  const id = req.params.id;
-  Blog.findById(id)
-  .then((result) => {
-    res.render('details', {blog: result, title: 'Blog Details'});
-  })
-  .catch((err) => console.log(err));
-});
-
-app.delete('/blogs/:id', (req, res) => {
-  const id = req.params.id;
-  Blog.findByIdAndDelete(id)
-  .then(result => {
-    res.json({redirect: '/blogs'});
-  })
-  .catch(err => console.log(err));
-})
-
-app.get('/blogs/create', (req, res) => {
-  res.render('create', {title: 'Create Blog'});
-})
+app.use('/blogs', blogRoutes);
 
 //404 page
 app.use((req, res) =>  {

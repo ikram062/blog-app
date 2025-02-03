@@ -16,5 +16,5 @@ const blogSchema = new Schema({
     }
 }, {timestamps: true});
 
-const Blog = mongoose.model('Blog', blogSchema);
-module.exports = Blog;
+const Blog = mongoose.model('Blog', blogSchema);//Creates a MongoDB collection called "blogs" (Mongoose automatically pluralizes the model name)
+module.exports = Blog;//Makes the Blog model available for use in other files
